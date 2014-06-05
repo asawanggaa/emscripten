@@ -656,7 +656,7 @@ If manually bisecting:
                                       ('screenshot.jpg@/assets/screenshot.jpg', '/assets', 'screenshot.jpg')]:
         Popen([
           PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_image.c'), '-o', 'page.html', '-O2', '--memory-init-file', str(mem),
-          '--preload-file', dest, '-DSCREENSHOT_DIRNAME="' + dirname + '"', '-DSCREENSHOT_BASENAME="' + basename + '"'
+          '--preload-file', dest, '-DSCREENSHOT_DIRNAME="' + dirname + '"', '-DSCREENSHOT_BASENAME="' + basename + '"', '-lSDL2', '-lSDL2_image'
         ]).communicate()
         self.run_browser('page.html', '', '/report_result?600')
 
@@ -665,7 +665,7 @@ If manually bisecting:
     open(os.path.join(self.get_dir(), 'sdl_image_jpeg.c'), 'w').write(self.with_report_result(open(path_from_root('tests', 'sdl_image.c')).read()))
     Popen([
       PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_image_jpeg.c'), '-o', 'page.html',
-      '--preload-file', 'screenshot.jpeg', '-DSCREENSHOT_DIRNAME="/"', '-DSCREENSHOT_BASENAME="screenshot.jpeg"'
+      '--preload-file', 'screenshot.jpeg', '-DSCREENSHOT_DIRNAME="/"', '-DSCREENSHOT_BASENAME="screenshot.jpeg"', '-lSDL2', '-lSDL2_image'
     ]).communicate()
     self.run_browser('page.html', '', '/report_result?600')
 
@@ -682,7 +682,7 @@ If manually bisecting:
       self.build_native_lzma()
       Popen([
         PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_image.c'), '-o', 'page.html',
-        '--preload-file', basename, '-DSCREENSHOT_DIRNAME="/"', '-DSCREENSHOT_BASENAME="' + basename + '"',
+        '--preload-file', basename, '-DSCREENSHOT_DIRNAME="/"', '-DSCREENSHOT_BASENAME="' + basename + '"', '-lSDL2', '-lSDL2_image',
         '--compression', '%s,%s,%s' % (path_from_root('third_party', 'lzma.js', 'lzma-native'),
                                        path_from_root('third_party', 'lzma.js', 'lzma-decoder.js'),
                                        'LZMA.decompress')
@@ -693,7 +693,7 @@ If manually bisecting:
   def test_sdl_image_prepare(self):
     # load an image file, get pixel data.
     shutil.copyfile(path_from_root('tests', 'screenshot.jpg'), os.path.join(self.get_dir(), 'screenshot.not'))
-    self.btest('sdl_image_prepare.c', reference='screenshot.jpg', args=['--preload-file', 'screenshot.not'])
+    self.btest('sdl_image_prepare.c', reference='screenshot.jpg', args=['--preload-file', 'screenshot.not', '-lSDL2', '-lSDL2_image'])
 
   def test_sdl_image_prepare_data(self):
     # load an image file, get pixel data.
@@ -742,7 +742,7 @@ window.close = function() {
 
     open('data.txt', 'w').write('datum')
 
-    self.btest('sdl_canvas_proxy.c', reference='sdl_canvas_proxy.png', args=['--proxy-to-worker', '--preload-file', 'data.txt'], manual_reference=True, post_build=post)
+    self.btest('sdl_canvas_proxy.c', reference='sdl_canvas_proxy.png', args=['-lSDL2', '--proxy-to-worker', '--preload-file', 'data.txt'], manual_reference=True, post_build=post)
 
   def test_sdl_canvas_alpha(self):
     self.btest('sdl_canvas_alpha.c', reference='sdl_canvas_alpha.png', reference_slack=9)
@@ -1123,7 +1123,7 @@ keydown(100);keyup(100); // trigger the end
   def test_sdl_gl_read(self):
     # SDL, OpenGL, readPixels
     open(os.path.join(self.get_dir(), 'sdl_gl_read.c'), 'w').write(self.with_report_result(open(path_from_root('tests', 'sdl_gl_read.c')).read()))
-    Popen([PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_gl_read.c'), '-o', 'something.html']).communicate()
+    Popen([PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_gl_read.c'), '-o', 'something.html', '-lSDL2']).communicate()
     self.run_browser('something.html', '.', '/report_result?1')
 
   def test_sdl_ogl(self):
@@ -1153,31 +1153,31 @@ keydown(100);keyup(100); // trigger the end
   def test_sdl_fog_simple(self):
     shutil.copyfile(path_from_root('tests', 'screenshot.png'), os.path.join(self.get_dir(), 'screenshot.png'))
     self.btest('sdl_fog_simple.c', reference='screenshot-fog-simple.png',
-      args=['-O2', '--minify', '0', '--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
+      args=['-lSDL2', '-lSDL2_image','-O2', '--minify', '0', '--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with fog.')
 
   def test_sdl_fog_negative(self):
     shutil.copyfile(path_from_root('tests', 'screenshot.png'), os.path.join(self.get_dir(), 'screenshot.png'))
     self.btest('sdl_fog_negative.c', reference='screenshot-fog-negative.png',
-      args=['--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
+      args=['-lSDL2', '-lSDL2_image','--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with fog.')
 
   def test_sdl_fog_density(self):
     shutil.copyfile(path_from_root('tests', 'screenshot.png'), os.path.join(self.get_dir(), 'screenshot.png'))
     self.btest('sdl_fog_density.c', reference='screenshot-fog-density.png',
-      args=['--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
+      args=['-lSDL2', '-lSDL2_image','--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with fog.')
 
   def test_sdl_fog_exp2(self):
     shutil.copyfile(path_from_root('tests', 'screenshot.png'), os.path.join(self.get_dir(), 'screenshot.png'))
     self.btest('sdl_fog_exp2.c', reference='screenshot-fog-exp2.png',
-      args=['--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
+      args=['-lSDL2', '-lSDL2_image','--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with fog.')
 
   def test_sdl_fog_linear(self):
     shutil.copyfile(path_from_root('tests', 'screenshot.png'), os.path.join(self.get_dir(), 'screenshot.png'))
     self.btest('sdl_fog_linear.c', reference='screenshot-fog-linear.png', reference_slack=1,
-      args=['--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
+      args=['-lSDL2', '-lSDL2_image','--preload-file', 'screenshot.png', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with fog.')
 
   def test_glfw(self):
@@ -1425,7 +1425,7 @@ keydown(100);keyup(100); // trigger the end
     self.btest('glgetattachedshaders.c', '1')
 
   def test_sdlglshader(self):
-    self.btest('sdlglshader.c', reference='sdlglshader.png', args=['-O2', '--closure', '1', '-s', 'LEGACY_GL_EMULATION=1'])
+    self.btest('sdlglshader.c', reference='sdlglshader.png', args=['-lSDL2', '-O2', '--closure', '1', '-s', 'LEGACY_GL_EMULATION=1'])
 
   def test_gl_glteximage(self):
     self.btest('gl_teximage.c', '1')
@@ -1548,10 +1548,10 @@ void *getBindBuffer() {
     self.btest('sdl_canvas_blank.c', reference='sdl_canvas_blank.png')
 
   def test_sdl_canvas_palette(self):
-    self.btest('sdl_canvas_palette.c', reference='sdl_canvas_palette.png')
+    self.btest('sdl_canvas_palette.c', reference='sdl_canvas_palette.png', args=['-lSDL2'])
 
   def test_sdl_canvas_twice(self):
-    self.btest('sdl_canvas_twice.c', reference='sdl_canvas_twice.png')
+    self.btest('sdl_canvas_twice.c', reference='sdl_canvas_twice.png', args=['-lSDL2'])
 
   def test_sdl_maprgba(self):
     self.btest('sdl_maprgba.c', reference='sdl_maprgba.png', reference_slack=3)
@@ -1561,15 +1561,9 @@ void *getBindBuffer() {
     self.btest('sdl_rotozoom.c', reference='sdl_rotozoom.png', args=['--preload-file', 'screenshot.png'], reference_slack=3)
 
   def test_sdl_gfx_primitives(self):
-    self.btest('sdl_gfx_primitives.c', reference='sdl_gfx_primitives.png', reference_slack=1)
+    self.btest('sdl_gfx_primitives.c', args=['-lSDL2', '-lSDL2_gfx'], reference='sdl_gfx_primitives.png', reference_slack=1)
 
   def test_sdl_canvas_palette_2(self):
-    open(os.path.join(self.get_dir(), 'pre.js'), 'w').write('''
-      Module['preRun'].push(function() {
-        SDL.defaults.copyOnLock = false;
-      });
-    ''')
-
     open(os.path.join(self.get_dir(), 'args-r.js'), 'w').write('''
       Module['arguments'] = ['-r'];
     ''')
@@ -1582,9 +1576,9 @@ void *getBindBuffer() {
       Module['arguments'] = ['-b'];
     ''')
 
-    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_r.png', args=['--pre-js', 'pre.js', '--pre-js', 'args-r.js'])
-    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_g.png', args=['--pre-js', 'pre.js', '--pre-js', 'args-g.js'])
-    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_b.png', args=['--pre-js', 'pre.js', '--pre-js', 'args-b.js'])
+    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_r.png', args=['-lSDL2', '--pre-js', 'args-r.js'])
+    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_g.png', args=['-lSDL2', '--pre-js', 'args-g.js'])
+    self.btest('sdl_canvas_palette_2.c', reference='sdl_canvas_palette_b.png', args=['-lSDL2', '--pre-js', 'args-b.js'])
 
   def test_sdl_alloctext(self):
     self.btest('sdl_alloctext.c', expected='1', args=['-O2', '-s', 'TOTAL_MEMORY=' + str(1024*1024*8)])

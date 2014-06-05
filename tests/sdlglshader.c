@@ -12,8 +12,8 @@ RESULTING FROM THE USE, MODIFICATION, OR
 REDISTRIBUTION OF THIS SOFTWARE.
 */
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_opengl.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_opengl.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -91,7 +91,7 @@ void setShaders() {
   glGetObjectParameteriv_(v, GL_OBJECT_COMPILE_STATUS_ARB, &ok);
   if (!ok) {
     char msg[512];
-    glGetShaderInfoLog(v, sizeof msg, NULL, msg);
+    glGetInfoLog_(v, sizeof msg, NULL, msg);
     printf("shader compilation issue: %s\n", msg);
   }
   assert(ok);
@@ -113,13 +113,20 @@ void setShaders() {
 
 int main(int argc, char *argv[])
 {
-    SDL_Surface *screen;
+    //SDL_Surface *screen;
+    SDL_Window *window;
+    SDL_GLContext context;
 
     assert(SDL_Init(SDL_INIT_VIDEO) == 0);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    screen = SDL_SetVideoMode( 640, 480, 16, SDL_OPENGL );
-    assert(screen);
-    
+    //screen = SDL_SetVideoMode( 640, 480, 16, SDL_OPENGL );
+    //assert(screen);
+
+    window = SDL_CreateWindow("sdlglshader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+    assert(window);
+
+    context = SDL_GL_CreateContext(window);
+
     glClearColor(0, 0, 0, 0);
     glViewport(0, 0, 640, 480);
     glMatrixMode(GL_PROJECTION);
@@ -146,8 +153,8 @@ int main(int argc, char *argv[])
         glTexCoord2f(1, 1  ); glVertex3f(630, 400, 0);
     glEnd();
 
-    SDL_GL_SwapBuffers();
-    
+    SDL_GL_SwapWindow(window);
+
 #ifndef __EMSCRIPTEN__
     SDL_Delay(3000);
 #endif

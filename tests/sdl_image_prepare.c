@@ -1,10 +1,10 @@
 #include <stdio.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <assert.h>
 #include <emscripten.h>
 
-SDL_Surface* screen;
+SDL_Renderer *renderer;
 
 int testImage(const char* fileName) {
   SDL_Surface *image = IMG_Load(fileName);
@@ -18,7 +18,11 @@ int testImage(const char* fileName) {
   assert(image->pitch == 4*image->w);
   int result = image->w;
 
-  SDL_BlitSurface (image, NULL, screen, NULL);
+  SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, image);
+
+  SDL_RenderCopy (renderer, tex, NULL, NULL);
+
+  SDL_DestroyTexture (tex);
   SDL_FreeSurface (image);
 
   return result;
@@ -29,12 +33,14 @@ void ready(const char *f) {
 
   testImage("screenshot.jpg"); // relative path
 
-  SDL_Flip(screen);
+  SDL_RenderPresent(renderer);
 }
 
 int main() {
   SDL_Init(SDL_INIT_VIDEO);
-  screen = SDL_SetVideoMode(600, 450, 32, SDL_SWSURFACE);
+  SDL_Window *window;
+
+  SDL_CreateWindowAndRenderer(600, 450, 0, &window, &renderer);
 
   printf("rename..\n");
 
