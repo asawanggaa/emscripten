@@ -1,12 +1,12 @@
 #include <stdio.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <assert.h>
 #include <emscripten.h>
 #include <unistd.h>
 #include <stdlib.h>
 
-int testImage(SDL_Surface* screen, const char* fileName) {
+int testImage(SDL_Renderer* renderer, const char* fileName) {
   SDL_Surface *image = IMG_Load(fileName);
   if (!image)
   {
@@ -18,14 +18,18 @@ int testImage(SDL_Surface* screen, const char* fileName) {
   assert(image->pitch == 4*image->w);
   int result = image->w;
 
-  SDL_BlitSurface (image, NULL, screen, NULL);
-
   int w, h;
   char *data = emscripten_get_preloaded_image_data(fileName, &w, &h);
 
   assert(data);
   assert(w == image->w);
   assert(h == image->h);
+
+  SDL_Texture *tex = SDL_CreateTextureFromSurface(renderer, image);
+
+  SDL_RenderCopy (renderer, tex, NULL, NULL);
+
+  SDL_DestroyTexture (tex);
 
   SDL_FreeSurface (image);
   free(data);
@@ -35,18 +39,22 @@ int testImage(SDL_Surface* screen, const char* fileName) {
 
 int main() {
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_Surface *screen = SDL_SetVideoMode(600, 450, 32, SDL_SWSURFACE);
+
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+
+  SDL_CreateWindowAndRenderer(600, 450, 0, &window, &renderer);
 
   int result = 0;
 
-  result |= testImage(screen, SCREENSHOT_DIRNAME "/" SCREENSHOT_BASENAME); // absolute path
+  result |= testImage(renderer, SCREENSHOT_DIRNAME "/" SCREENSHOT_BASENAME); // absolute path
   assert(result != 0);
 
   chdir(SCREENSHOT_DIRNAME);
-  result = testImage(screen, "./" SCREENSHOT_BASENAME); // relative path
+  result = testImage(renderer, "./" SCREENSHOT_BASENAME); // relative path
   assert(result != 0);
 
-  SDL_Flip(screen);
+  SDL_RenderPresent(renderer);
 
   printf("you should see an image.\n");
 

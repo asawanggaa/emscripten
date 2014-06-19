@@ -1,8 +1,7 @@
 // Built from glbook/hello triange and sdl_ogl, see details there
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_opengl.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_opengles2.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,17 +140,22 @@ void Verify() {
 
 int main(int argc, char *argv[])
 {
-  SDL_Surface *screen;
+  SDL_Window *window;
+  SDL_GLContext context;
+
   if ( SDL_Init(SDL_INIT_VIDEO) != 0 ) {
     printf("Unable to initialize SDL: %s\n", SDL_GetError());
     return 1;
   }
 
-  screen = SDL_SetVideoMode(width, height, 32, SDL_OPENGL);
-  if (!screen) {
-    printf("Unable to set video mode: %s\n", SDL_GetError());
+  window = SDL_CreateWindow("sdl_gl_read", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+
+  if (!window) {
+    printf("Unable to create window: %s\n", SDL_GetError());
     return 1;
   }
+
+  context = SDL_GL_CreateContext(window);
 
   Init();
   Draw();

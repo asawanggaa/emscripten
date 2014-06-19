@@ -22,9 +22,9 @@ RESULTING FROM THE USE, MODIFICATION, OR
 REDISTRIBUTION OF THIS SOFTWARE.
 */
 
-#include "SDL/SDL.h"
-#include "SDL/SDL_image.h"
-#include "SDL/SDL_opengl.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_opengl.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -32,7 +32,8 @@ REDISTRIBUTION OF THIS SOFTWARE.
 
 int main(int argc, char *argv[])
 {
-    SDL_Surface *screen;
+    SDL_Window *window;
+    SDL_GLContext context;
 
     // Slightly different SDL initialization
     if ( SDL_Init(SDL_INIT_VIDEO) != 0 ) {
@@ -42,15 +43,19 @@ int main(int argc, char *argv[])
 
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 ); // *new*
 
-    screen = SDL_SetVideoMode( 640, 480, 16, SDL_OPENGL ); // *changed*
-    if ( !screen ) {
-        printf("Unable to set video mode: %s\n", SDL_GetError());
+    window = SDL_CreateWindow("sdl_fog_density", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_OPENGL);
+    if ( !window ) {
+        printf("Unable to create window: %s\n", SDL_GetError());
         return 1;
     }
+
+    context = SDL_GL_CreateContext(window);
 
     // Set the OpenGL state after creating the context with SDL_SetVideoMode
 
     glClearColor( 0, 0, 0, 0 );
+
+    glEnable( GL_TEXTURE_2D ); // Needed when we're using the fixed-function pipeline.
 
     glViewport( 0, 0, 640, 480 );
 
@@ -62,11 +67,6 @@ int main(int argc, char *argv[])
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
-
-    // Delay Enable to after MatrixMode to assure we've activated
-    // immediate mode. Otherwise, we don't properly record that
-    // TEXTURE_2D is enabled for imm mode emulation.
-    glEnable( GL_TEXTURE_2D ); // Needed when we're using the fixed-function pipeline.
 
     // Load the OpenGL texture
 
@@ -130,42 +130,42 @@ int main(int argc, char *argv[])
     assert(glIsEnabled(GL_FOG));
 
     glBegin( GL_QUADS );
-        glTexCoord2i( 0, 0 ); glVertex3f( 10, 10, 10 );
-        glTexCoord2i( 1, 0 ); glVertex3f( 300, 10, 10 );
-        glTexCoord2i( 1, 1 ); glVertex3f( 300, 128, 10 );
-        glTexCoord2i( 0, 1 ); glVertex3f( 10, 128, 10 );
+        glTexCoord2i( 0, 0 ); glVertex3f( 10, 10, -1 );
+        glTexCoord2i( 1, 0 ); glVertex3f( 300, 10, -1 );
+        glTexCoord2i( 1, 1 ); glVertex3f( 300, 128, -1 );
+        glTexCoord2i( 0, 1 ); glVertex3f( 10, 128, -1 );
 
-        glTexCoord2f( 0, 0.5 ); glVertex3f( 410, 10, 5 );
-        glTexCoord2f( 1, 0.5 ); glVertex3f( 600, 10, 6 );
-        glTexCoord2f( 1, 1   ); glVertex3f( 630, 200, 7 );
-        glTexCoord2f( 0.5, 1 ); glVertex3f( 310, 250, 8 );
+        glTexCoord2f( 0, 0.5 ); glVertex3f( 410, 10, -5 );
+        glTexCoord2f( 1, 0.5 ); glVertex3f( 600, 10, -6 );
+        glTexCoord2f( 1, 1   ); glVertex3f( 630, 200, -7 );
+        glTexCoord2f( 0.5, 1 ); glVertex3f( 310, 250, -8 );
     glEnd();
 
     glBegin( GL_TRIANGLE_STRIP );
-        glTexCoord2i( 0, 0 ); glVertex3f( 100, 300, 1 );
-        glTexCoord2i( 1, 0 ); glVertex3f( 300, 300, 1 );
-        glTexCoord2i( 1, 1 ); glVertex3f( 300, 400, 1 );
-        glTexCoord2i( 0, 1 ); glVertex3f( 500, 410, 1 );
+        glTexCoord2i( 0, 0 ); glVertex3f( 100, 300, -1 );
+        glTexCoord2i( 1, 0 ); glVertex3f( 300, 300, -1 );
+        glTexCoord2i( 1, 1 ); glVertex3f( 300, 400, -1 );
+        glTexCoord2i( 0, 1 ); glVertex3f( 500, 410, -1 );
     glEnd();
 
     glDisable(GL_TEXTURE_2D);
 
     glColor3ub(90, 255, 255);
     glBegin( GL_QUADS );
-        glVertex3f( 10, 410, 5 );
-        glVertex3f( 300, 410, 50 );
-        glVertex3f( 300, 480, 100 );
-        glVertex3f( 10, 470, 5 );
+        glVertex3f( 10, 410, -5 );
+        glVertex3f( 300, 410, -50 );
+        glVertex3f( 300, 480, -100 );
+        glVertex3f( 10, 470, -5 );
     glEnd();
 
     glBegin( GL_QUADS );
-        glColor3f(1.0, 0, 1.0);   glVertex3f( 410, 410, 10 );
-        glColor3f(0, 1.0, 0);     glVertex3f( 600, 410, 10 );
-        glColor3f(0, 0, 1.0);     glVertex3f( 600, 480, 10 );
-        glColor3f(1.0, 1.0, 1.0); glVertex3f( 410, 470, 10 );
+        glColor3f(1.0, 0, 1.0);   glVertex3f( 410, 410, -10 );
+        glColor3f(0, 1.0, 0);     glVertex3f( 600, 410, -10 );
+        glColor3f(0, 0, 1.0);     glVertex3f( 600, 480, -10 );
+        glColor3f(1.0, 1.0, 1.0); glVertex3f( 410, 470, -10 );
     glEnd();
 
-    SDL_GL_SwapBuffers();
+    SDL_GL_SwapWindow(window);
 
 #ifndef __EMSCRIPTEN__
     // Wait for 3 seconds to give us a chance to see the image

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <assert.h>
 #include <emscripten.h>
 
@@ -15,7 +15,14 @@ int main(int argc, char **argv) {
   fclose(f);
 
   SDL_Init(SDL_INIT_VIDEO);
-  SDL_Surface *screen = SDL_SetVideoMode(600, 450, 32, SDL_HWSURFACE);
+  //SDL_Surface *screen = SDL_SetVideoMode(600, 450, 32, SDL_HWSURFACE);
+
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+
+  SDL_CreateWindowAndRenderer(600, 450, 0, &window, &renderer);
+
+  SDL_Surface *screen = SDL_CreateRGBSurface(0, 600, 450, 32, 0, 0, 0, 0);
 
   SDL_LockSurface(screen);
   unsigned int *pixels = (unsigned int *)screen->pixels;
@@ -25,6 +32,11 @@ int main(int argc, char **argv) {
     }
   }
   SDL_UnlockSurface(screen);
+
+  SDL_Texture *screenTexture = SDL_CreateTextureFromSurface(renderer, screen);
+  SDL_RenderClear(renderer);
+  SDL_RenderCopy(renderer, screenTexture, NULL, NULL);
+  SDL_RenderPresent(renderer);
 
   SDL_Quit();
 
