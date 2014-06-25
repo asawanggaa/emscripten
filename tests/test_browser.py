@@ -646,6 +646,9 @@ If manually bisecting:
   def test_sdl_swsurface(self):
     self.btest('sdl_swsurface.c', expected='1')
 
+  def test_sdl2_swsurface(self):
+    self.btest('sdl2_swsurface.c', expected='1', args=['-lSDL2'])
+
   def test_sdl_image(self):
     # load an image file, get pixel data. Also O2 coverage for --preload-file, and memory-init
     shutil.copyfile(path_from_root('tests', 'screenshot.jpg'), os.path.join(self.get_dir(), 'screenshot.jpg'))
