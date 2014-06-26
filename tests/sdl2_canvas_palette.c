@@ -15,7 +15,7 @@ int main() {
   //initialize sdl palette
   //with red green and blue
   //colors
-  SDL_Color pal[3];
+  SDL_Color pal[4];
   pal[0].r = 255;
   pal[0].g = 0;
   pal[0].b = 0;
@@ -31,7 +31,12 @@ int main() {
   pal[2].b = 255;
   pal[2].a = 255;
 
-  SDL_SetPaletteColors(screen->format->palette, pal, 0, 3);
+  pal[3].r = 255;
+  pal[3].g = 255;
+  pal[3].b = 0;
+  pal[3].a = 255;
+
+  SDL_SetPaletteColors(screen->format->palette, pal, 0, 4);
 
   SDL_FillRect(screen, NULL, 0);
 
@@ -45,14 +50,9 @@ int main() {
     SDL_FillRect(screen, &rect, 2);
   }
 
-  //changing green color
-  //to yellow
-  pal[1].r = 255;
-  SDL_SetPaletteColors(screen->format->palette, pal, 0, 3);
-
   {
     SDL_Rect rect = { 300, 200, 300, 200 };
-    SDL_FillRect(screen, &rect, 1);
+    SDL_FillRect(screen, &rect, 3);
   }
 
   SDL_Texture *screenTexture = SDL_CreateTextureFromSurface(renderer, screen);
