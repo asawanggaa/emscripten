@@ -1357,6 +1357,19 @@ keydown(100);keyup(100); // trigger the end
     ''')
     self.btest('sdl_pumpevents.c', expected='7', args=['--pre-js', 'pre.js'])
 
+  def test_sdl2_pumpevents(self):
+    # key events should be detected using SDL_PumpEvents
+    open(os.path.join(self.get_dir(), 'pre.js'), 'w').write('''
+      function keydown(c) {
+        var event = document.createEvent("KeyboardEvent");
+        event.initKeyEvent("keydown", true, true, window,
+                           0, 0, 0, 0,
+                           c, c);
+        document.dispatchEvent(event);
+      }
+    ''')
+    self.btest('sdl2_pumpevents.c', expected='7', args=['--pre-js', 'pre.js', '-lSDL2'])
+
   def test_sdl_canvas_size(self):
     self.btest('sdl_canvas_size.c', reference='screenshot-gray-purple.png', reference_slack=1,
       args=['-O2', '--minify', '0', '--shell-file', path_from_root('tests', 'sdl_canvas_size.html'), '--preload-file', path_from_root('tests', 'screenshot.png') + '@/', '-s', 'LEGACY_GL_EMULATION=1'],
