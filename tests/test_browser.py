@@ -1011,6 +1011,39 @@ keydown(100);keyup(100); // trigger the end
     Popen([PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl_mouse.c'), '-O2', '--minify', '0', '-o', 'page.html', '--pre-js', 'pre.js']).communicate()
     self.run_browser('page.html', '', '/report_result?740')
 
+  def test_sdl2_mouse(self):
+    open(os.path.join(self.get_dir(), 'pre.js'), 'w').write('''
+      function simulateMouseEvent(x, y, button) {
+        var event = document.createEvent("MouseEvents");
+        if (button >= 0) {
+          var event1 = document.createEvent("MouseEvents");
+          event1.initMouseEvent('mousedown', true, true, window,
+                     1, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y,
+                     0, 0, 0, 0,
+                     button, null);
+          Module['canvas'].dispatchEvent(event1);
+          var event2 = document.createEvent("MouseEvents");
+          event2.initMouseEvent('mouseup', true, true, window,
+                     1, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y,
+                     0, 0, 0, 0,
+                     button, null);
+          Module['canvas'].dispatchEvent(event2);
+        } else {
+          var event1 = document.createEvent("MouseEvents");
+          event1.initMouseEvent('mousemove', true, true, window,
+                     0, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y, Module['canvas'].offsetLeft + x, Module['canvas'].offsetTop + y,
+                     0, 0, 0, 0,
+                     0, null);
+          Module['canvas'].dispatchEvent(event1);
+        }
+      }
+      window['simulateMouseEvent'] = simulateMouseEvent;
+    ''')
+    open(os.path.join(self.get_dir(), 'sdl2_mouse.c'), 'w').write(self.with_report_result(open(path_from_root('tests', 'sdl2_mouse.c')).read()))
+
+    Popen([PYTHON, EMCC, os.path.join(self.get_dir(), 'sdl2_mouse.c'), '-O2', '--minify', '0', '-o', 'page.html', '--pre-js', 'pre.js', '-lSDL2']).communicate()
+    self.run_browser('page.html', '', '/report_result?740')
+
   def test_sdl_mouse_offsets(self):
     open(os.path.join(self.get_dir(), 'pre.js'), 'w').write('''
       function simulateMouseEvent(x, y, button) {
