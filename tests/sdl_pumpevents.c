@@ -56,7 +56,7 @@ int alphakey()
 
 int main(int argc, char *argv[])
 {
-   SDL_Init(SDL_INIT_EVERYTHING);
+   SDL_Init(SDL_INIT_VIDEO);
    SDL_SetVideoMode(600, 400, 32, SDL_SWSURFACE);
 
    emscripten_run_script("keydown(37);"); // left
