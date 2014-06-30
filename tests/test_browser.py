@@ -1841,6 +1841,9 @@ void *getBindBuffer() {
   def test_sdl_canvas_blank(self):
     self.btest('sdl_canvas_blank.c', reference='sdl_canvas_blank.png')
 
+  def test_sdl2_canvas_blank(self):
+    self.btest('sdl2_canvas_blank.c', reference='sdl_canvas_blank.png', args=['-lSDL2'])
+
   def test_sdl_canvas_palette(self):
     self.btest('sdl_canvas_palette.c', reference='sdl_canvas_palette.png')
 
