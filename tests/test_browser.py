@@ -1375,6 +1375,9 @@ keydown(100);keyup(100); // trigger the end
       args=['-O2', '--minify', '0', '--shell-file', path_from_root('tests', 'sdl_canvas_size.html'), '--preload-file', path_from_root('tests', 'screenshot.png') + '@/', '-s', 'LEGACY_GL_EMULATION=1'],
       message='You should see an image with gray at the top.')
 
+  def test_sdl2_canvas_size(self):
+    self.btest('sdl2_canvas_size.c', expected='1', args=['-lSDL2'])
+
   def test_sdl_gl_read(self):
     # SDL, OpenGL, readPixels
     open(os.path.join(self.get_dir(), 'sdl_gl_read.c'), 'w').write(self.with_report_result(open(path_from_root('tests', 'sdl_gl_read.c')).read()))
